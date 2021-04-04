@@ -279,7 +279,7 @@ public class PlayerGeneralListeners implements Listener {
                     "{broken}",
                     "{avaible}"
             }, new String[]{
-                    Bukkit.getPlayer(data.getUUID()).getName(),
+                    Bukkit.getOfflinePlayer(data.getUUID()).getName(),
                     String.valueOf(++pos),
                     String.valueOf(data.getBlocksBroken()),
                     String.valueOf(data.getBlocksAvaible())
