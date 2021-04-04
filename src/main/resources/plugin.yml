@@ -1,0 +1,9 @@
+name: ${project.name}
+description: ${project.description}
+version: ${project.version}
+author: zPedroo_
+main: com.zpedroo.mining.Main
+depend: [Vault, PlaceholderAPI, WorldGuard]
+commands:
+  miningadmin:
+  tokens:

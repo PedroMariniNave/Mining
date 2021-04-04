@@ -1,0 +1,253 @@
+Settings:
+  task-interval: 30 # In seconds (task to give player awards)
+  update-interval: 600 # In seconds (task to update top ten blocks)
+  price-per-repair: 100 # Tokens
+
+Messages:
+  actionbar: "&6&lVoltz&f&lMC &8&l➜ &7Você quebrou &f{blocks} &7blocos e recebeu: &e{coins}✪ &7e &5{tokens}✦&7!"
+  mining-usage: "&6&lVoltz&f&lMC &8&l➜ &cUso correto: /miningadmin <setupgrade/reload>."
+  config-reloaded: "&6&lVoltz&f&lMC &8&l➜ &aConfiguração recarregada com sucesso!"
+  location-set: "&6&lVoltz&f&lMC &8&l➜ &aLocal definido com sucesso!"
+  upgrade-type: "&6&lVoltz&f&lMC &8&l➜ &aDigite no chat a quantia de níveis que deseja evoluir!"
+  upgrade-cancelled: "&6&lVoltz&f&lMC &8&l➜ &cEvolução cancelada!"
+  upgrade-maximum-level: "&6&lVoltz&f&lMC &8&l➜ &cO nível ultrapassou o limite! Tente novamente com um valor menor."
+  insufficient-tokens: "&6&lVoltz&f&lMC &8&l➜ &cVocê não possui Tokens suficientes!"
+  offline-player: "&6&lVoltz&f&lMC &8&l➜ &cEsse jogador está offline!"
+  invalid-value: "&6&lVoltz&f&lMC &8&l➜ &cValor inválido!"
+  tokens:
+    message: "&6&lVoltz&f&lMC &8&l➜ &7Você possui: &5{tokens}✦&7!"
+    title: "&5&lTokens"
+    subtitle: "&fVocê possui: &5{tokens}✦&f!"
+
+Pickaxe:
+  type: DIAMOND_PICKAXE
+  attributes: false
+  name: '&8&lPicareta Dark &7[Lvl: &f{level}&7]'
+  lore:
+    - '&7Eficiência: &f{dig_speed}'
+    - '&7Inquebrável: &f{durability}'
+    - '&7Fortuna: &f{loot_bonus_blocks}'
+    - '&7Super Área: &f{super_area}'
+    - '&7Destruição: &f{destruction}'
+    - '&7Sortudo: &f{lucky}'
+  enchants:
+    - DIG_SPEED,{dig_speed}
+
+Tokens:
+  type: SKULL_ITEM
+  owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ5MmZlZWExZGVlZTYxY2Q1ZTIzOWNiM2VkOWM0NDRlNTk3YzkxODMzMjZkMWZlODRiOTUyYzg1ZmVhMzNhIn19fQ==
+  name: "&5Tokens &7(x{amount})"
+  lore:
+    - '&7Ative esse item para ganhar'
+    - '&7tokens e evoluir sua picareta!'
+    - ''
+    - '&7Para ativar todos Tokens de uma'
+    - '&7só vez, basta segurar &fSHIFT!'
+
+Regions:
+  enter:
+    - mina
+    -
+  mine:
+    - minerios
+    - mineriosvip
+
+Blocks:
+  NETHERRACK:
+    coins: 7500
+    tokens: 75
+    lucky-block: false
+
+  NETHER_BRICK:
+    coins: 500000
+    tokens: 5000
+    lucky-block: false
+
+  QUARTZ_ORE:
+    coins: 10000
+    tokens: 100
+    lucky-block: true
+
+Inventories:
+  upgrade:
+    title: "Evoluir Picareta"
+    size: 54
+    items:
+      pickaxe: # don't change this name
+        slot: 3
+      top: # don't change this name
+        type: ARMOR_STAND
+        name: "&aTop 10"
+        lore:
+          - '&7Clique para ver os &f10 jogadores'
+          - '&7que mais quebraram blocos no servidor!'
+        slot: 5
+        action: "TOP"
+      dig_speed:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTJjZTRkYjNlODQ3MmJjNDkxNDI1N2U5ZjJkMWM1YjE1MTcyZWE2NzUyYmI5N2Q5YjRlOWExMDMyNGFhMjg2In19fQ==
+        name: '&aEficiência &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fse tornará mais eficiente!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 21
+        action: UPGRADE
+      durability:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmJiZTQxYmYyM2MzY2RmZTNkZGVkNDIyZjQ4NDQ1MzExNDgxM2UxMmY3YjZmODU1OTM1NTJhNTVjMDgwM2MifX19
+        name: '&aInquebrável &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fse tornará mais resistente!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 22
+        action: UPGRADE
+      loot_bonus_blocks:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTFmZjZhNTVlOTcxOTMxZWIwNjI2NTY1ZGFkNzc3MTQxOWZhZTk4ODdhYTZkNTJiZjE5OTU3MTc4NjBjIn19fQ==
+        name: '&aFortuna &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&ffornecerá mais coins e tokens!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 23
+        action: UPGRADE
+      super_area:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTMzYTQyNWUyZjhiYmM1MDk5ZjAxNDJmM2RjMTRiNWI0MGVkMmRkMzY2YWNlNjhiZjlmNzE4NjM0NGJkMjMzMSJ9fX0=
+        name: '&aSuper Área &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fterá uma chance de quebrar em área!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 30
+        action: UPGRADE
+      destruction:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWM1YTYyZWRlNTIwYzQ4ZGI0OTkzNTQzZWUyZjFiYjQ2N2E3YTNmMDE5MGI2ZWNmYjI3MDViMDBjNGJiMThjMyJ9fX0=
+        name: '&aDestruição &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fterá uma chance de quebrar uma camada inteira!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 31
+        action: UPGRADE
+      lucky:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGY3NDY3YzVmNzM4YzY0MTI0NmMwOWY4Y2U3OTFlMzM5YTg2ZTgxZGU2MjA0OWI0MWY0OTI4ODgxNzJmYTcyNiJ9fX0=
+        name: '&aSortudo &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fterá uma chance maior de encontrar tesouros!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 32
+        action: UPGRADE
+  repair:
+    title: "Reparar Picareta"
+    size: 45
+    items:
+      pickaxe:
+        slot: 13
+      repair:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI0MjVhYTNkOTQ2MThhODdkYWM5Yzk0ZjM3N2FmNmNhNDk4NGMwNzU3OTY3NGZhZDkxN2Y2MDJiN2JmMjM1In19fQ==
+        name: '&aReparar'
+        lore:
+          - '&7Porcentagem danificada: &f{percentage}%'
+          - ''
+          - '&7Custo: &f{price} Tokens'
+          - ''
+          - '&7Clique para reparar!'
+        slot: 31
+        action: REPAIR
+  top:
+    title: "Mineração - Top 10"
+    size: 36
+    slots: "11,12,13,14,15,20,21,22,23,24"
+    items:
+      player:
+        type: SKULL_ITEM
+        owner: "{player}"
+        name: "&5{player} &7[&f{pos}º&7]"
+        lore:
+          - '&7Blocos quebrados: &f{broken}'
+          - '&7Saldo de Blocos: &f{avaible}'
+      back:
+        type: ARROW
+        name: "&cVoltar"
+        slot: 27
+        action: "MAIN"
+
+Enchants:
+  DIG_SPEED:
+    max-level: 1000
+    price-per-level: 500
+    initial-level: 10
+
+  DURABILITY:
+    max-level: 1000
+    price-per-level: 500
+    initial-level: 0
+
+  LOOT_BONUS_BLOCKS:
+    max-level: 1000
+    price-per-level: 500
+    initial-level: 0
+
+  SUPER_AREA:
+    max-level: 100
+    price-per-level: 500
+    initial-level: 0
+
+  DESTRUCTION:
+    max-level: 100
+    price-per-level: 500
+    initial-level: 0
+
+  LUCKY:
+    max-level: 100
+    price-per-level: 500
+    initial-level: 0
+
+Treasures:
+  '1':
+    chance: 1
+    commands:
+      - caixa givekey {player} Belzebu 1
+    title: '&8&lTesouros'
+    subtitle: '&f+1 Chave Belzebu'
+
+  '2':
+    chance: 0.5
+    random: "100,500" # min,max
+    commands:
+      - tokens vale {player} {random}
+    title: '&8&lTesouros'
+    subtitle: '&f+{random} Tokens'
+
+Upgrade-Location:

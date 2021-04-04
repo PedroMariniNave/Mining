@@ -1,0 +1,9 @@
+name: Mining
+description: Only a simple mining plugin.
+version: 2.0
+author: zPedroo_
+main: com.zpedroo.mining.Main
+depend: [Vault, PlaceholderAPI, WorldGuard]
+commands:
+  miningadmin:
+  tokens:
