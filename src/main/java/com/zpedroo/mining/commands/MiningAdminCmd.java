@@ -1,6 +1,9 @@
 package com.zpedroo.mining.commands;
 
+import com.skydhs.voltzspawners.utils.nbti.NBTItem;
 import com.zpedroo.mining.managers.FileManager;
+import com.zpedroo.mining.utils.builder.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -8,8 +11,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
+import java.util.regex.Pattern;
 
 public class MiningAdminCmd implements CommandExecutor {
 
@@ -21,7 +26,7 @@ public class MiningAdminCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player) || !sender.isOp()) return true;
+        if (!(sender instanceof Player) || !sender.hasPermission("mining.admin")) return true;
 
         Player player = (Player) sender;
         if (args.length == 0) {
@@ -29,11 +34,16 @@ public class MiningAdminCmd implements CommandExecutor {
             return true;
         }
 
+        Block block = player.getTargetBlock((HashSet<Byte>) null, 5);
+        Location location = block.getLocation();
         switch (args[0].toUpperCase()) {
             case "SETUPGRADE":
-                Block block = player.getTargetBlock((HashSet<Byte>) null, 5);
-                Location location = block.getLocation();
                 file.get().set("Upgrade-Location", serializeLocation(location));
+                file.save();
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', file.get().getString("Messages.location-set")));
+                break;
+            case "SETTRADE":
+                file.get().set("Trade-Location", serializeLocation(location));
                 file.save();
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', file.get().getString("Messages.location-set")));
                 break;

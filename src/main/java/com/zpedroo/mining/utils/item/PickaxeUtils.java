@@ -4,6 +4,7 @@ import com.skydhs.voltzspawners.utils.nbti.NBTItem;
 import com.zpedroo.mining.Main;
 import com.zpedroo.mining.enchants.Enchant;
 import com.zpedroo.mining.utils.builder.ItemBuilder;
+import com.zpedroo.mining.utils.formatter.NumberFormatter;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -46,7 +47,7 @@ public class PickaxeUtils {
                 String.valueOf(getEnchantLevel("SUPER_AREA")),
                 String.valueOf(getEnchantLevel("DESTRUCTION")),
                 String.valueOf(getEnchantLevel("LUCKY")),
-                String.valueOf(getLevel())
+                NumberFormatter.fixDecimal(getLevel())
         });
         item.setDurability(this.durability);
         NBTItem nbt = new NBTItem(item);

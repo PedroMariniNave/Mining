@@ -3,6 +3,7 @@ package com.zpedroo.mining.data;
 import com.zpedroo.mining.Main;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
@@ -27,9 +28,9 @@ public class SQLiteConnector {
     private void checkTable() throws SQLException {
         connection.createStatement().execute("CREATE TABLE IF NOT EXISTS '" + TABLE_NAME + "' (" +
                 "'uuid' VARCHAR(255) NOT NULL," +
-                "'broken' BIGINT NOT NULL DEFAULT '0'," +
-                "'avaible' BIGINT NOT NULL DEFAULT '0'," +
-                "'tokens' BIGINT NOT NULL DEFAULT '0'," +
+                "'broken' DECIMAL(40,2) NOT NULL DEFAULT '0'," +
+                "'avaible' DECIMAL(40,2) NOT NULL DEFAULT '0'," +
+                "'tokens' DECIMAL(40,2) NOT NULL DEFAULT '0'," +
                 "PRIMARY KEY (`uuid`));");
     }
 
@@ -38,10 +39,10 @@ public class SQLiteConnector {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM '" + TABLE_NAME + "' where uuid='" + uuid.toString() + "';");
             if (resultSet.next()) {
-                BigInteger broken = new BigInteger(resultSet.getString("broken"));
-                BigInteger avaible = new BigInteger(resultSet.getString("avaible"));
-                BigInteger tokens = new BigInteger(resultSet.getString("tokens"));
-                return new PlayerData(uuid, broken, avaible, tokens);
+                BigDecimal broken = BigDecimal.valueOf(resultSet.getDouble("broken"));
+                BigDecimal avaible = BigDecimal.valueOf(resultSet.getDouble("avaible"));
+                BigDecimal tokens = BigDecimal.valueOf(resultSet.getDouble("tokens"));
+                return new PlayerData(uuid, broken.toBigInteger(), avaible.toBigInteger(), tokens.toBigInteger());
             }
             return new PlayerData(uuid, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
         } catch (SQLException ex) {
@@ -54,9 +55,9 @@ public class SQLiteConnector {
         try (Statement statement = connection.createStatement()) {
             statement.execute("INSERT OR REPLACE INTO '" + TABLE_NAME + "' VALUES" + "('" +
                     data.getUUID().toString() + "', '" +
-                    data.getBlocksBroken() + "', '" +
-                    data.getBlocksAvaible() + "', '" +
-                    data.getTokens() + "'" + ");");
+                    new BigDecimal(data.getBlocksBroken()) + "', '" +
+                    new BigDecimal(data.getBlocksAvaible()) + "', '" +
+                    new BigDecimal(data.getTokens()) + "'" + ");");
             return true;
         }
         catch (SQLException ex) {
@@ -72,10 +73,10 @@ public class SQLiteConnector {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM '" + TABLE_NAME + "' order by broken desc limit 10;");
             while (resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
-                BigInteger broken = new BigInteger(resultSet.getString("broken"));
-                BigInteger avaible = new BigInteger(resultSet.getString("avaible"));
-                BigInteger tokens = new BigInteger(resultSet.getString("tokens"));
-                topTen.add(new PlayerData(uuid, broken, avaible, tokens));
+                BigDecimal broken = BigDecimal.valueOf(resultSet.getDouble("broken"));
+                BigDecimal avaible = BigDecimal.valueOf(resultSet.getDouble("avaible"));
+                BigDecimal tokens = BigDecimal.valueOf(resultSet.getDouble("tokens"));
+                topTen.add(new PlayerData(uuid, broken.toBigInteger(), avaible.toBigInteger(), tokens.toBigInteger()));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

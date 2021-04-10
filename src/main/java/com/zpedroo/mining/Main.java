@@ -2,8 +2,10 @@ package com.zpedroo.mining;
 
 import com.zpedroo.mining.cache.EnchantsCache;
 import com.zpedroo.mining.cache.PlayerCache;
+import com.zpedroo.mining.commands.BlocksCmd;
 import com.zpedroo.mining.commands.MiningAdminCmd;
 import com.zpedroo.mining.commands.TokensCmd;
+import com.zpedroo.mining.commands.UpgraderCmd;
 import com.zpedroo.mining.data.SQLiteConnector;
 import com.zpedroo.mining.hooks.PlaceholderAPIHook;
 import com.zpedroo.mining.hooks.VaultHook;
@@ -52,6 +54,8 @@ public class Main extends JavaPlugin {
     private void registerCommands() {
         getCommand("miningadmin").setExecutor(new MiningAdminCmd(getFiles().get("CONFIG")));
         getCommand("tokens").setExecutor(new TokensCmd(getFiles().get("CONFIG")));
+        getCommand("blocks").setExecutor(new BlocksCmd(getFiles().get("CONFIG")));
+        getCommand("upgrader").setExecutor(new UpgraderCmd(getFiles().get("CONFIG")));
     }
 
     private void registerListeners() {

@@ -8,6 +8,7 @@ import com.zpedroo.mining.managers.FileManager;
 import com.zpedroo.mining.utils.chat.PlayerChat;
 import com.zpedroo.mining.utils.item.PickaxeUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -56,6 +57,7 @@ public class PlayerChatListener implements Listener {
             data.setTokens(data.getTokens().subtract(price.multiply(BigInteger.valueOf(levelToUpgrade))));
             pickaxeUtils.setEnchant(enchant, pickaxeUtils.getEnchantLevel(enchant) + levelToUpgrade);
             player.setItemInHand(pickaxeUtils.create());
+            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
         } else {
             player.sendMessage(getColored(file.get().getString("Messages.insufficient-tokens")));
         }

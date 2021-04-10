@@ -36,13 +36,16 @@ public class PlayerGeneralListeners implements Listener {
     private FileManager file;
     private List<String> mineRegions;
     private List<String> miningRegions;
+    private List<String> blacklistedRegions;
 
     public PlayerGeneralListeners(FileManager file) {
         this.file = file;
         this.mineRegions = new ArrayList<>();
         this.miningRegions = new ArrayList<>();
+        this.blacklistedRegions = new ArrayList<>();
         this.mineRegions.addAll(file.get().getStringList("Regions.enter"));
         this.miningRegions.addAll(file.get().getStringList("Regions.mine"));
+        this.blacklistedRegions.addAll(file.get().getStringList("Regions.blacklist"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -65,7 +68,7 @@ public class PlayerGeneralListeners implements Listener {
                 boolean luckyBlock = block.isLuckyBlock();
 
                 // Destruction enchant
-                if (new Random().nextInt(1500 + 1) <= destruction && destruction > 0) {
+                if (new Random().nextInt(1500 + 1) <= destruction && destruction > 0 && !getBlacklistedRegions().contains(region.getId())) {
                     int i = 0;
                     for (int xOff = -55; xOff <= 55; ++xOff) {
                         for (int zOff = -55; zOff <= 55; ++zOff) {
@@ -85,7 +88,7 @@ public class PlayerGeneralListeners implements Listener {
                             }.runTaskLaterAsynchronously(Main.get(), ++i/50);
                         }
                     } // Super Area enchant
-                } else if (new Random().nextInt(1500 + 1) <= superArea && superArea > 0) {
+                } else if (new Random().nextInt(1500 + 1) <= superArea && superArea > 0 && !getBlacklistedRegions().contains(region.getId())) {
                     for (int xOff = -1; xOff <= 1; ++xOff) {
                         for (int yOff = -1; yOff <= 1; ++yOff) {
                             for (int zOff = -1; zOff <= 1; ++zOff) {
@@ -171,14 +174,18 @@ public class PlayerGeneralListeners implements Listener {
                 }
             }
 
-            if (file.get().getString("Upgrade-Location") == null) return;
-
-            if (deserializeLocation(file.get().getString("Upgrade-Location")).equals(event.getClickedBlock().getLocation())) {
+            if (file.get().getString("Upgrade-Location") != null && deserializeLocation(file.get().getString("Upgrade-Location")).equals(event.getClickedBlock().getLocation())) {
                 if (event.getItem() == null || event.getItem().getType().equals(Material.AIR) || !event.getItem().getType().toString().endsWith("_PICKAXE")) return;
 
                 openUpgradeInventory(player);
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 10, 10);
             }
+
+            if (file.get().getString("Trade-Location") != null && deserializeLocation(file.get().getString("Trade-Location")).equals(event.getClickedBlock().getLocation())) {
+                openTradeInventory(player);
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 10, 10);
+            }
+
         }
 
         if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -200,7 +207,76 @@ public class PlayerGeneralListeners implements Listener {
                 player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
                 player.getInventory().removeItem(item);
             }
+
+            else if (nbt.hasKey("blocks_amount")) {
+                event.setCancelled(true);
+                ItemStack item = event.getItem().clone();
+                PlayerData data = Main.get().getDataManager().loadPlayer(player);
+                if (!player.isSneaking()) {
+                    item.setAmount(1);
+                    data.setBlocksAvaible(data.getBlocksAvaible().add(new BigInteger(String.format("%.0f", nbt.getDouble("blocks_amount")))));
+                } else {
+                    for (int i = 0; i < item.getAmount(); ++i) {
+                        data.setBlocksAvaible(data.getBlocksAvaible().add(new BigInteger(String.format("%.0f", nbt.getDouble("blocks_amount")))));
+                    }
+                }
+                player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
+                player.getInventory().removeItem(item);
+            }
         }
+    }
+
+    private void openTradeInventory(Player player) {
+        Inventory inventory = Bukkit.createInventory(null, file.get().getInt("Inventories.trade.size"), ChatColor.translateAlternateColorCodes('&', file.get().getString("Inventories.trade.title")));
+        PlayerData data = Main.get().getDataManager().loadPlayer(player);
+
+        for (String str : file.get().getConfigurationSection("Inventories.trade.items").getKeys(false)) {
+            String action = file.get().getString("Inventories.trade.items." + str + ".action", "NULL");
+            int slot = file.get().getInt("Inventories.trade.items." + str + ".slot");
+            double price = file.get().getDouble("Inventories.trade.items." + str + ".price", 0);
+            ItemStack item = ItemBuilder.build(file, "Inventories.trade.items." + str, new String[]{
+                    "{price}",
+                    "{player}",
+                    "{avaible}",
+                    "{broken}"
+            }, new String[]{
+                    NumberFormatter.formatNumber(price),
+                    player.getName(),
+                    NumberFormatter.formatNumber(data.getBlocksAvaible().doubleValue()),
+                    NumberFormatter.formatNumber(data.getBlocksBroken().doubleValue())
+            });
+
+            inventory.setItem(slot, item);
+
+            if (!StringUtils.equals(action, "NULL")) {
+                Main.get().getItemUtils().setItemAction(inventory, slot, () -> {
+                    switch (action) {
+                        case "BUY":
+                            if (data.getBlocksAvaible().doubleValue() < price) {
+                                player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1, 1);
+                                return;
+                            }
+
+                            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
+                            data.setBlocksAvaible(data.getBlocksAvaible().subtract(new BigInteger(String.format("%.0f", price))));
+
+                            for (String cmd : file.get().getStringList("Inventories.trade.items." + str + ".commands")) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(cmd, new String[]{
+                                    "{player}"
+                                }, new String[]{
+                                        player.getName()
+                                }));
+                            }
+                            break;
+                        case "CLOSE":
+                            player.closeInventory();
+                            break;
+                    }
+                });
+            }
+        }
+
+        player.openInventory(inventory);
     }
 
     private void openUpgradeInventory(Player player) {
@@ -219,7 +295,7 @@ public class PlayerGeneralListeners implements Listener {
 
             ItemStack item = null;
 
-            if (StringUtils.equalsIgnoreCase(str, "TOP")) {
+            if (StringUtils.equalsIgnoreCase(action, "TOP") || StringUtils.equalsIgnoreCase(action, "CLOSE")) {
                 item = ItemBuilder.build(file, "Inventories.upgrade.items." + str);
             } else {
                 int enchantLevel = pickaxeUtils.getEnchantLevel(pickaxeUtils.getEnchant(str.toUpperCase()));
@@ -281,8 +357,8 @@ public class PlayerGeneralListeners implements Listener {
             }, new String[]{
                     Bukkit.getOfflinePlayer(data.getUUID()).getName(),
                     String.valueOf(++pos),
-                    String.valueOf(data.getBlocksBroken()),
-                    String.valueOf(data.getBlocksAvaible())
+                    NumberFormatter.formatNumber(data.getBlocksBroken().doubleValue()),
+                    NumberFormatter.formatNumber(data.getBlocksAvaible().doubleValue())
             }));
         }
 
@@ -402,5 +478,9 @@ public class PlayerGeneralListeners implements Listener {
 
     private List<String> getMiningRegions() {
         return miningRegions;
+    }
+
+    private List<String> getBlacklistedRegions() {
+        return blacklistedRegions;
     }
 }

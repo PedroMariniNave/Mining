@@ -7,3 +7,5 @@ depend: [Vault, PlaceholderAPI, WorldGuard]
 commands:
   miningadmin:
   tokens:
+  blocks:
+  upgrader:
