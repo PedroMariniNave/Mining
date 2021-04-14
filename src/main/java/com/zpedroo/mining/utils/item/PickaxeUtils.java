@@ -11,7 +11,7 @@ import java.util.*;
 
 public class PickaxeUtils {
 
-    private HashMap<Enchant, Integer> enchants = new HashMap<>();
+    private HashMap<Enchant, Integer> enchants = new HashMap<>(16);
     private int level;
     private short durability;
 
@@ -39,6 +39,7 @@ public class PickaxeUtils {
                 "{super_area}",
                 "{destruction}",
                 "{lucky}",
+                "{thunder}",
                 "{level}"
         }, new String[]{
                 String.valueOf(getEnchantLevel("DIG_SPEED")),
@@ -47,6 +48,7 @@ public class PickaxeUtils {
                 String.valueOf(getEnchantLevel("SUPER_AREA")),
                 String.valueOf(getEnchantLevel("DESTRUCTION")),
                 String.valueOf(getEnchantLevel("LUCKY")),
+                String.valueOf(getEnchantLevel("THUNDER")),
                 NumberFormatter.fixDecimal(getLevel())
         });
         item.setDurability(this.durability);

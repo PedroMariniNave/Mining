@@ -12,7 +12,7 @@ public class BlocksCache {
     private HashMap<Material, Blocks> blocksCache;
 
     public BlocksCache(FileManager file) {
-        this.blocksCache = new HashMap<>();
+        this.blocksCache = new HashMap<>(16);
 
         for (String str : file.get().getConfigurationSection("Blocks").getKeys(false)) {
             BigInteger coins = new BigInteger(file.get().getString("Blocks." + str + ".coins"));

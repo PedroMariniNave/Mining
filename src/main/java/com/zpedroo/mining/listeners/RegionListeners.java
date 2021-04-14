@@ -19,7 +19,7 @@ public class RegionListeners implements Listener {
 
     public RegionListeners(FileManager file) {
         this.file = file;
-        this.mineRegions = new ArrayList<>();
+        this.mineRegions = new ArrayList<>(4);
         this.mineRegions.addAll(file.get().getStringList("Regions.enter"));
     }
 

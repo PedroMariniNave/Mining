@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -40,9 +41,9 @@ public class PlayerGeneralListeners implements Listener {
 
     public PlayerGeneralListeners(FileManager file) {
         this.file = file;
-        this.mineRegions = new ArrayList<>();
-        this.miningRegions = new ArrayList<>();
-        this.blacklistedRegions = new ArrayList<>();
+        this.mineRegions = new ArrayList<>(4);
+        this.miningRegions = new ArrayList<>(4);
+        this.blacklistedRegions = new ArrayList<>(4);
         this.mineRegions.addAll(file.get().getStringList("Regions.enter"));
         this.miningRegions.addAll(file.get().getStringList("Regions.mine"));
         this.blacklistedRegions.addAll(file.get().getStringList("Regions.blacklist"));
@@ -64,6 +65,7 @@ public class PlayerGeneralListeners implements Listener {
                 int fortune = pickaxeUtils.getEnchantLevel(Main.get().getEnchantsCache().getEnchant("LOOT_BONUS_BLOCKS"));
                 int destruction = pickaxeUtils.getEnchantLevel(Main.get().getEnchantsCache().getEnchant("DESTRUCTION"));
                 int superArea = pickaxeUtils.getEnchantLevel(Main.get().getEnchantsCache().getEnchant("SUPER_AREA"));
+                int thunder = pickaxeUtils.getEnchantLevel(Main.get().getEnchantsCache().getEnchant("THUNDER"));
                 int lucky = pickaxeUtils.getEnchantLevel(Main.get().getEnchantsCache().getEnchant("LUCKY"));
                 boolean luckyBlock = block.isLuckyBlock();
 
@@ -104,6 +106,30 @@ public class PlayerGeneralListeners implements Listener {
                             }
                         }
                     }
+                } else if (new Random().nextInt(1500 + 1) <= thunder && thunder > 0 && !getBlacklistedRegions().contains(region.getId())) {
+                    Bukkit.getWorld(event.getBlock().getWorld().getName()).strikeLightningEffect(event.getBlock().getLocation());
+                    for (int yOff = -50; yOff <= 50; ++yOff) {
+                        Block blockFound = event.getBlock().getRelative(0, yOff, 0);
+                        if (!Main.get().getBlocks().isMineBlock(blockFound.getType())) continue;
+
+                        blocks = blocks.add(BigInteger.ONE);
+                        coins = coins.add(Main.get().getBlocks().getBlockInfo(blockFound.getType()).getCoins());
+                        tokens = tokens.add(Main.get().getBlocks().getBlockInfo(blockFound.getType()).getTokens());
+
+                        blockFound.breakNaturally();
+                        blockFound.getState().update();
+                    }
+                }
+
+                if (Main.get().getPlayerBoosterManager().hasBoosterActived(player, "REWARDS")) {
+                    int multiplier = Main.get().getPlayerBoosterManager().getPlayerBooster(player, "REWARDS").getMultiplier();
+                    coins = coins.multiply(new BigInteger(String.valueOf(multiplier)));
+                    tokens = tokens.multiply(new BigInteger(String.valueOf(multiplier)));
+                }
+
+                if (Main.get().getPlayerBoosterManager().hasBoosterActived(player, "BLOCKS")) {
+                    int multiplier = Main.get().getPlayerBoosterManager().getPlayerBooster(player, "BLOCKS").getMultiplier();
+                    blocks = blocks.multiply(new BigInteger(String.valueOf(multiplier)));
                 }
 
                 // Fortune enchant
@@ -111,7 +137,7 @@ public class PlayerGeneralListeners implements Listener {
                     coins = coins.add(coins.multiply(BigInteger.valueOf(fortune)));
                     tokens = tokens.add(tokens.multiply(BigInteger.valueOf(fortune)));
                 }
-
+                /*
                 // If is a lucky block, treasure chance is 100%, so we'll select a random treasure
                 if (luckyBlock) {
                     int size = file.get().getConfigurationSection("Treasures").getKeys(false).size();
@@ -123,17 +149,17 @@ public class PlayerGeneralListeners implements Listener {
                         giveTreasure(player, treasure);
                         break;
                     } // else, we will create the respective chance of every treasure and run
-                } else {
-                    for (String treasure : file.get().getConfigurationSection("Treasures").getKeys(false)) {
-                        double chance = file.get().getDouble("Treasures." + treasure + ".chance");
-                        // Lucky enchant, increasing chance...
-                        if (new Random().nextInt(100 + 1) <= lucky && lucky > 0) chance += chance;
-
-                        // Checking chance...
-                        if (new Random().nextDouble() * 100D <= chance) {
-                            giveTreasure(player, treasure);
-                            break;
-                        }
+                 */
+                for (String treasure : file.get().getConfigurationSection("Treasures").getKeys(false)) {
+                    double chance = file.get().getDouble("Treasures." + treasure + ".chance");
+                    // If is a lucky block, chance will be double
+                    if (luckyBlock) chance += chance;
+                    // Lucky enchant, increasing chance...
+                    if (new Random().nextInt(100 + 1) <= lucky && lucky > 0) chance += chance;
+                    // Checking chance...
+                    if (new Random().nextDouble() * 100D <= chance) {
+                        giveTreasure(player, treasure);
+                        break;
                     }
                 }
 
@@ -160,17 +186,42 @@ public class PlayerGeneralListeners implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            for (ProtectedRegion region : WGBukkit.getRegionManager(event.getClickedBlock().getWorld()).getApplicableRegions(event.getClickedBlock().getLocation())) {
-                if (getMineRegions().contains(region.getId())) {
-                    if (event.getClickedBlock().getType().equals(Material.ANVIL)) {
-                        event.setCancelled(true);
+            if (event.getClickedBlock().getType().equals(Material.ANVIL)) {
+                event.setCancelled(true);
+                for (ProtectedRegion region : WGBukkit.getRegionManager(event.getClickedBlock().getWorld()).getApplicableRegions(event.getClickedBlock().getLocation())) {
+                    if (getMineRegions().contains(region.getId())) {
                         if (player.getItemInHand().getType().toString().endsWith("_PICKAXE") && player.getItemInHand().getDurability() != 0) {
                             openRepairInventory(player);
                             player.playSound(player.getLocation(), Sound.ANVIL_LAND, 10, 10);
                         } else {
                             player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1, 1);
                         }
+                        return;
                     }
+                }
+
+                boolean repair = false;
+                for (ItemStack item : player.getInventory().getContents()) {
+                    if (item == null || item.getType().equals(Material.AIR) || item.getType().toString().endsWith("_PICKAXE")) continue;
+
+                    if (item.getType().getMaxDurability() != 0 && item.getDurability() != 0) {
+                        item.setDurability((short) 0);
+                        repair = true;
+                    }
+                }
+
+                for (ItemStack armor : player.getInventory().getArmorContents()) {
+                    if (armor == null || armor.getType().equals(Material.AIR)) continue;
+
+                    if (armor.getType().getMaxDurability() != 0 && armor.getDurability() != 0) {
+                        armor.setDurability((short) 0);
+                        repair = true;
+                    }
+                }
+
+                if (repair) {
+                    player.updateInventory();
+                    player.playSound(player.getLocation(), Sound.ANVIL_USE, 1, 1);
                 }
             }
 
@@ -192,6 +243,8 @@ public class PlayerGeneralListeners implements Listener {
             if (event.getItem() == null || event.getItem().getType().equals(Material.AIR)) return;
 
             NBTItem nbt = new NBTItem(event.getItem());
+            if (!nbt.hasNBTData()) return;
+
             if (nbt.hasKey("tokens_amount")) {
                 event.setCancelled(true);
                 ItemStack item = event.getItem().clone();
@@ -220,6 +273,30 @@ public class PlayerGeneralListeners implements Listener {
                         data.setBlocksAvaible(data.getBlocksAvaible().add(new BigInteger(String.format("%.0f", nbt.getDouble("blocks_amount")))));
                     }
                 }
+                player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
+                player.getInventory().removeItem(item);
+            }
+
+            else if (nbt.hasKey("mining_booster")) {
+                event.setUseItemInHand(Event.Result.DENY);
+
+                String[] split = nbt.getString("mining_booster").split("#");
+                String type = split[0];
+
+                if (Main.get().getPlayerBoosterManager().hasBoosterActived(player, type)) {
+                    player.sendMessage(getColored(file.get().getString("Messages.has-booster-actived")));
+                    player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1, 1);
+                    player.updateInventory();
+                    return;
+                }
+
+                ItemStack item = event.getItem().clone();
+                item.setAmount(1);
+
+                int multiplier = Integer.parseInt(split[1]);
+                int duration = Integer.parseInt(split[2]);
+
+                Main.get().getPlayerBoosterManager().setBooster(player, type, multiplier, duration);
                 player.playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 10);
                 player.getInventory().removeItem(item);
             }
@@ -295,7 +372,7 @@ public class PlayerGeneralListeners implements Listener {
 
             ItemStack item = null;
 
-            if (StringUtils.equalsIgnoreCase(action, "TOP") || StringUtils.equalsIgnoreCase(action, "CLOSE")) {
+            if (StringUtils.equalsIgnoreCase(action, "TOP") || StringUtils.equalsIgnoreCase(action, "CLOSE") || StringUtils.contains(str.toUpperCase(), "UNKNOWN")) {
                 item = ItemBuilder.build(file, "Inventories.upgrade.items." + str);
             } else {
                 int enchantLevel = pickaxeUtils.getEnchantLevel(pickaxeUtils.getEnchant(str.toUpperCase()));
@@ -441,6 +518,12 @@ public class PlayerGeneralListeners implements Listener {
         int random = new Random().nextInt(max + 1 - min) + min;
         for (String cmd : commands) {
             Main.get().getServer().dispatchCommand(Bukkit.getConsoleSender(), replacePlaceholders(cmd, player, random));
+            // Treasures Booster
+            if (Main.get().getPlayerBoosterManager().hasBoosterActived(player, "TREASURES")) {
+                for (int i = 1; i < Main.get().getPlayerBoosterManager().getPlayerBooster(player, "TREASURES").getMultiplier(); ++i) {
+                    Main.get().getServer().dispatchCommand(Bukkit.getConsoleSender(), replacePlaceholders(cmd, player, random));
+                }
+            }
         }
 
         String title = getColored(replacePlaceholders(file.get().getString("Treasures." + treasure + ".title"), player, random));

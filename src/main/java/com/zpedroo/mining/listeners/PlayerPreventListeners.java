@@ -15,7 +15,7 @@ public class PlayerPreventListeners implements Listener {
     private ArrayList<String> TITLES;
 
     public PlayerPreventListeners(FileManager file) {
-        this.TITLES = new ArrayList<>();
+        this.TITLES = new ArrayList<>(4);
         for (String str : file.get().getConfigurationSection("Inventories").getKeys(false)) {
             TITLES.add(ChatColor.translateAlternateColorCodes('&', file.get().getString("Inventories." + str + ".title")));
         }

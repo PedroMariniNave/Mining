@@ -6,12 +6,10 @@ import com.zpedroo.mining.enchants.Enchant;
 import com.zpedroo.mining.managers.FileManager;
 import com.zpedroo.mining.utils.item.ItemUtils;
 import com.zpedroo.mining.utils.item.PickaxeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,7 +18,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 
@@ -31,7 +28,7 @@ public class InventoryClickListener implements Listener {
 
     public InventoryClickListener(ItemUtils itemUtils, FileManager file) {
         this.itemUtils = itemUtils;
-        this.TITLES = new ArrayList<>();
+        this.TITLES = new ArrayList<>(4);
         for (String str : file.get().getConfigurationSection("Inventories").getKeys(false)) {
             TITLES.add(ChatColor.translateAlternateColorCodes('&', file.get().getString("Inventories." + str + ".title")));
         }

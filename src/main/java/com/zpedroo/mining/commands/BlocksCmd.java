@@ -25,9 +25,9 @@ public class BlocksCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length >= 3) {
-            if (!sender.hasPermission("blocks.admin")) return true;
+        if (!sender.hasPermission("blocks.admin")) return true;
 
+        if (args.length >= 3) {
             Player target = Bukkit.getPlayer(args[1]);
             BigInteger amount = new BigInteger(args[2]);
 

@@ -25,7 +25,7 @@ public class PlayerChatListener implements Listener {
 
     public PlayerChatListener(FileManager file) {
         this.file = file;
-        this.playerChatMap = new HashMap<>();
+        this.playerChatMap = new HashMap<>(4);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

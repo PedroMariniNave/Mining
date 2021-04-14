@@ -6,6 +6,7 @@ main: com.zpedroo.mining.Main
 depend: [Vault, PlaceholderAPI, WorldGuard]
 commands:
   miningadmin:
+  miningbooster:
   tokens:
   blocks:
   upgrader:

@@ -12,7 +12,7 @@ public class EnchantsCache {
     private List<Enchant> enchants;
 
     public EnchantsCache(FileManager file) {
-        this.enchants = new ArrayList<>();
+        this.enchants = new ArrayList<>(16);
 
         for (String enchant : file.get().getConfigurationSection("Enchants").getKeys(false)) {
             int maxLevel = file.get().getInt("Enchants." + enchant + ".max-level");

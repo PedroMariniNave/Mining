@@ -6,6 +6,7 @@ Messages:
   actionbar: '&6&lVoltz&f&lMC &8&l➜ &7Você quebrou &f{blocks} &7blocos e recebeu:
     &e{coins}✪ &7e &5{tokens}✦&7!'
   mining-usage: '&6&lVoltz&f&lMC &8&l➜ &cUso correto: /miningadmin <setupgrade/settrade/reload>.'
+  booster-usage: '&6&lVoltz&f&lMC &8&l➜ &cUso correto: /miningbooster give <jogador> <tipo> <multiplier> <duração> <quantia>.'
   config-reloaded: '&6&lVoltz&f&lMC &8&l➜ &aConfiguração recarregada com sucesso!'
   location-set: '&6&lVoltz&f&lMC &8&l➜ &aLocal definido com sucesso!'
   upgrade-type: '&6&lVoltz&f&lMC &8&l➜ &aDigite no chat a quantia de níveis que deseja
@@ -16,6 +17,9 @@ Messages:
   insufficient-tokens: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui Tokens suficientes!'
   offline-player: '&6&lVoltz&f&lMC &8&l➜ &cEsse jogador está offline!'
   invalid-value: '&6&lVoltz&f&lMC &8&l➜ &cValor inválido!'
+  invalid-booster: '&6&lVoltz&f&lMC &8&l➜ &cBooster inválido! Tipos válidos: REWARDS, TREASURES e BLOCKS!'
+  has-booster-actived: '&6&lVoltz&f&lMC &8&l➜ &cVocê já possui um booster desse tipo ativo!'
+  booster-ended: '&6&lVoltz&f&lMC &8&l➜ &cO seu booster de {type} acabou!'
   tokens:
     message: '&6&lVoltz&f&lMC &8&l➜ &7Você possui: &5{tokens}✦&7!'
     title: '&5&lTokens'
@@ -31,8 +35,10 @@ Pickaxe:
     - '&7Super Área: &f{super_area}'
     - '&7Destruição: &f{destruction}'
     - '&7Sortudo: &f{lucky}'
+    - '&7Thunder: &f{thunder}'
   enchants:
     - DIG_SPEED,{dig_speed}
+    - DURABILITY,{durability}
 Tokens:
   type: SKULL_ITEM
   owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ5MmZlZWExZGVlZTYxY2Q1ZTIzOWNiM2VkOWM0NDRlNTk3YzkxODMzMjZkMWZlODRiOTUyYzg1ZmVhMzNhIn19fQ==
@@ -43,10 +49,16 @@ Tokens:
     - ''
     - '&7Para ativar todos Tokens de uma'
     - '&7só vez, basta segurar &fSHIFT!'
+Booster:
+  type: EXP_BOTTLE
+  name: "&6Booster de {type}"
+  lore:
+    - '&7Duração: &f{duration} minutos'
+    - '&7Multiplier: &f{multiplier}x'
 BlocksItem:
   type: SKULL_ITEM
   owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjJmODAzNjMyNDRhZjFiNGJjZjdkMWMyYjUwNjc3NzJjMGMyNzI3NzI2NjQ0N2VjY2Q0YWY2NmNjNDM0NzM5OCJ9fX0=
-  name: "&eBlocos &7[&f{amount}&7]"
+  name: '&eBlocos &7[&f{amount}&7]'
   lore:
     - '&7Ative esse item para ganhar'
     - '&7blocos e trocar por itens raros!'
@@ -96,18 +108,175 @@ Blocks:
     lucky-block: true
 Inventories:
   trade:
-    title: "Trocar Blocos"
+    title: Trocar Blocos
     size: 54
     items:
-      1:
-        type: DIAMOND_HELMET
-        name: "&aUm capacete ai"
+      info:
+        type: SKULL_ITEM
+        owner: '{player}'
+        name: '&aEstatísticas'
         lore:
-          - '&7Custo: &e{price} &fblocos'
-        price: 100000
+          - '&7Blocos quebrados: &f{broken}'
+          - '&7Saldo de blocos: &f{avaible}'
+        slot: 4
+      close:
+        type: ARROW
+        name: '&cFechar'
+        slot: 49
+        action: CLOSE
+      1:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjZhZDNmMzQzYmU4YzgwZTA0NzA1OThkMWVkMjdiZWI5MDg1ODM5NTczOTU1ZWQ5ZDQ2MjY4MDljMzgzYjFiNyJ9fX0=
+        name: "&8Evoluir Picareta &7[&f+5&7]"
+        lore:
+          - '&7Aplique esse item na sua picareta'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f5 &7níveis!'
+          - ""
+          - '&7Custo: &f{price} blocos'
+        price: 5000000
+        slot: 20
+        action: BUY
+        commands:
+          - 'upgrader {player} 1 1'
+      2:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWJjNDhiYmQzOTJjYzkzMzhjZTU4MjQ5ZGU3NmU3Njk3OWFlZjdmZGExMGJkYzE3ZWMxYjY0NGZkYWM4MGMzMiJ9fX0=
+        name: "&6Evoluir Picareta &7[&f+20&7]"
+        lore:
+          - '&7Aplique esse item na sua picareta'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f20 &7níveis!'
+          - ''
+          - '&7Custo: &f{price} blocos &7(-25%)'
+        price: 15000000
+        slot: 21
+        action: BUY
+        commands:
+          - 'upgrader {player} 2 1'
+      3:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjViNWZhYThlNDgxZmNiODRjYmVmMWU1YzQyMGQ2YTgxYTZlNjhmNWEwNzUwMDFhMDI4ODI1YWMyMDE4ZWJlNyJ9fX0=
+        name: "&aEvoluir Looting &7[&f+1.000&7]"
+        lore:
+          - '&7Aplique esse item na sua looting'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f1.000 &7níveis!'
+          - ''
+          - '&7Esse adicional só pode ser aplicado'
+          - '&7uma vez por item!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 500000000
         slot: 22
-        action: "BUY"
-
+        action: BUY
+        commands:
+          - 'upgrader {player} 3 1'
+      4:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjViNWZhYThlNDgxZmNiODRjYmVmMWU1YzQyMGQ2YTgxYTZlNjhmNWEwNzUwMDFhMDI4ODI1YWMyMDE4ZWJlNyJ9fX0=
+        name: "&aEvoluir Looting &7[&f+1.500&7]"
+        lore:
+          - '&7Aplique esse item na sua looting'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f1.500 &7níveis!'
+          - ''
+          - '&7Esse adicional só pode ser aplicado'
+          - '&7uma vez por item!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 750000000
+        slot: 23
+        action: BUY
+        commands:
+          - 'upgrader {player} 4 1'
+      5:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ5MmZlZWExZGVlZTYxY2Q1ZTIzOWNiM2VkOWM0NDRlNTk3YzkxODMzMjZkMWZlODRiOTUyYzg1ZmVhMzNhIn19fQ==
+        name: '&5Tokens &7[&fx100k&7]'
+        lore:
+          - '&7Ative esse item para ganhar'
+          - '&7tokens e evoluir sua picareta!'
+          - ''
+          - '&7Para ativar todos Tokens de uma'
+          - '&7só vez, basta segurar &fSHIFT!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 100000
+        slot: 24
+        action: BUY
+        commands:
+          - 'tokens vale {player} 100000'
+      6:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ5MmZlZWExZGVlZTYxY2Q1ZTIzOWNiM2VkOWM0NDRlNTk3YzkxODMzMjZkMWZlODRiOTUyYzg1ZmVhMzNhIn19fQ==
+        name: '&5Tokens &7[&fx100k&7]'
+        lore:
+          - '&7Ative esse item para ganhar'
+          - '&7tokens e evoluir sua picareta!'
+          - ''
+          - '&7Para ativar todos Tokens de uma'
+          - '&7só vez, basta segurar &fSHIFT!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 1000000
+        slot: 24
+        action: BUY
+        commands:
+          - 'tokens vale {player} 100000'
+      7:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ5MmZlZWExZGVlZTYxY2Q1ZTIzOWNiM2VkOWM0NDRlNTk3YzkxODMzMjZkMWZlODRiOTUyYzg1ZmVhMzNhIn19fQ==
+        name: '&5Tokens &7[&fx500k&7]'
+        lore:
+          - '&7Ative esse item para ganhar'
+          - '&7tokens e evoluir sua picareta!'
+          - ''
+          - '&7Para ativar todos Tokens de uma'
+          - '&7só vez, basta segurar &fSHIFT!'
+          - ''
+          - '&7Custo: &f{price} blocos &7(-25%)'
+        price: 3750000
+        slot: 30
+        action: BUY
+        commands:
+          - 'tokens vale {player} 500000'
+      8:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODkzNzVkODA1MjkxYmFjN2QwNDVjNWMwNDQ4YWI3ZjU1OTlmYTZkOWE4Y2FlYWU0YmQyNTFkNTg2ZTJjOCJ9fX0=
+        name: '&bEvoluir Armadura &7[&f+2&7]'
+        lore:
+          - '&7Aplique esse item na sua armadura'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f2 &7níveis!'
+          - ''
+          - '&7Esse adicional só pode ser aplicado'
+          - '&7uma vez por item!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 10000000
+        slot: 31
+        action: BUY
+        commands:
+          - 'upgradearmor {player} 1 1'
+      9:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWJmYTZlYWI4MWUyMWJkYmZiYjk4N2VkNjk1YTQ1OTZlZDMzZTc3NTEwOTA4ZGFkZjY5NjkxMmY5NDIzZjc1In19fQ==
+        name: '&4Evoluir Armadura &7[&f+3&7]'
+        lore:
+          - '&7Aplique esse item na sua armadura'
+          - '&7para aumentar todos encantamentos'
+          - '&7em &f3 &7níveis!'
+          - ''
+          - '&7Esse adicional só pode ser aplicado'
+          - '&7uma vez por item!'
+          - ''
+          - '&7Custo: &f{price} blocos'
+        price: 15000000
+        slot: 32
+        action: BUY
+        commands:
+          - 'upgradearmor {player} 2 1'
   upgrade:
     title: Evoluir Picareta
     size: 54
@@ -122,6 +291,11 @@ Inventories:
           - '&7que mais quebraram blocos no servidor!'
         slot: 5
         action: TOP
+      close:
+        type: ARROW
+        name: '&cFechar'
+        slot: 49
+        action: CLOSE
       dig_speed:
         type: SKULL_ITEM
         owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTJjZTRkYjNlODQ3MmJjNDkxNDI1N2U5ZjJkMWM1YjE1MTcyZWE2NzUyYmI5N2Q5YjRlOWExMDMyNGFhMjg2In19fQ==
@@ -206,6 +380,21 @@ Inventories:
           - '&7Clique para escolher os níveis!'
         slot: 32
         action: UPGRADE
+      thunder:
+        type: SKULL_ITEM
+        owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDgwNjhhM2U5ZWQwZTY4ODc2OGNmZTAxN2VhZGZmZmM5MjEwNjhmYjRhOGExMGJhYmFkY2U3NWNmNTcyYWFhMyJ9fX0=
+        name: '&aThunder &7[Máx: &f{max_level}&7]'
+        lore:
+          - '&fAo evoluir esse encantamento, sua picareta'
+          - '&fterá uma chance de invocar um raio, quebrando'
+          - '&ftodos blocos até a última camada!'
+          - ''
+          - '&7Nível atual: &f{level}'
+          - '&7Custo para evoluir: &f{price} Tokens'
+          - ''
+          - '&7Clique para escolher os níveis!'
+        slot: 39
+        action: UPGRADE
   repair:
     title: Reparar Picareta
     size: 45
@@ -266,6 +455,10 @@ Enchants:
     max-level: 100
     price-per-level: 10000
     initial-level: 0
+  THUNDER:
+    max-level: 100
+    price-per-level: 20000
+    initial-level: 0
 Treasures:
   '1':
     chance: 1
@@ -275,11 +468,10 @@ Treasures:
     subtitle: '&f+1 Chave Belzebu'
   '2':
     chance: 0.5
-    random: 100,500
     commands:
-      - tokens vale {player} {random}
+      - tokens vale {player} 500
     title: '&8&lTesouros'
-    subtitle: '&f+{random} Tokens'
+    subtitle: '&f+500 Tokens'
   '3':
     chance: 0.3
     commands:
@@ -304,6 +496,5 @@ Treasures:
       - amc sgive {player} Lucky 1
     title: '&8&lTesouros'
     subtitle: '&f+1 Lucky Block'
-
-Upgrade-Location:
-Trade-Location:
+Upgrade-Location: RankupWorld#1007#51#1012
+Trade-Location: RankupWorld#1007#51#1006

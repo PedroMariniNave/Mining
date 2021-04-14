@@ -14,7 +14,7 @@ public class DataManager{
     private List<PlayerData> topTenCache;
 
     public DataManager() {
-        this.playerDataCache = new HashMap<>();
+        this.playerDataCache = new HashMap<>(512);
         this.topTenCache = new LinkedList<>();
         this.updateTopTen();
         this.setupTask();

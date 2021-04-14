@@ -2,10 +2,7 @@ package com.zpedroo.mining;
 
 import com.zpedroo.mining.cache.EnchantsCache;
 import com.zpedroo.mining.cache.PlayerCache;
-import com.zpedroo.mining.commands.BlocksCmd;
-import com.zpedroo.mining.commands.MiningAdminCmd;
-import com.zpedroo.mining.commands.TokensCmd;
-import com.zpedroo.mining.commands.UpgraderCmd;
+import com.zpedroo.mining.commands.*;
 import com.zpedroo.mining.data.SQLiteConnector;
 import com.zpedroo.mining.hooks.PlaceholderAPIHook;
 import com.zpedroo.mining.hooks.VaultHook;
@@ -13,6 +10,7 @@ import com.zpedroo.mining.listeners.*;
 import com.zpedroo.mining.managers.DataManager;
 import com.zpedroo.mining.managers.FileManager;
 import com.zpedroo.mining.cache.BlocksCache;
+import com.zpedroo.mining.managers.PlayerBoosterManager;
 import com.zpedroo.mining.utils.item.ItemUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,6 +28,7 @@ public class Main extends JavaPlugin {
     private PlayerCache playerCache;
     private EnchantsCache enchantsCache;
     private ItemUtils itemUtils;
+    private PlayerBoosterManager playerBoosterManager;
 
     public void onEnable() {
         main = this;
@@ -42,6 +41,7 @@ public class Main extends JavaPlugin {
         playerCache = new PlayerCache(getFiles().get("CONFIG"));
         enchantsCache = new EnchantsCache(getFiles().get("CONFIG"));
         itemUtils = new ItemUtils();
+        playerBoosterManager = new PlayerBoosterManager();
         registerCommands();
         registerListeners();
     }
@@ -53,6 +53,7 @@ public class Main extends JavaPlugin {
 
     private void registerCommands() {
         getCommand("miningadmin").setExecutor(new MiningAdminCmd(getFiles().get("CONFIG")));
+        getCommand("miningbooster").setExecutor(new MiningBoosterCmd(getFiles().get("CONFIG")));
         getCommand("tokens").setExecutor(new TokensCmd(getFiles().get("CONFIG")));
         getCommand("blocks").setExecutor(new BlocksCmd(getFiles().get("CONFIG")));
         getCommand("upgrader").setExecutor(new UpgraderCmd(getFiles().get("CONFIG")));
@@ -93,5 +94,9 @@ public class Main extends JavaPlugin {
 
     public ItemUtils getItemUtils() {
         return itemUtils;
+    }
+
+    public PlayerBoosterManager getPlayerBoosterManager() {
+        return playerBoosterManager;
     }
 }
